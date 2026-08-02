@@ -11,10 +11,18 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
+        ensureDependencies = ''
+          if [ ! -f "node_modules/.bin/slidev" ]; then
+            echo "node_modules missing or incomplete. Installing dependencies..."
+            ${pkgs.bun}/bin/bun install --frozen-lockfile
+          fi
+        '';
+
         present = pkgs.writeShellApplication {
           name = "present";
           runtimeInputs = [ pkgs.bun pkgs.nodejs ];
           text = ''
+            ${ensureDependencies}
             exec ${pkgs.bun}/bin/bun run slidev "$@"
           '';
         };
@@ -23,6 +31,7 @@
           name = "export-pdf";
           runtimeInputs = [ pkgs.bun pkgs.nodejs pkgs.chromium ];
           text = ''
+            ${ensureDependencies}
             exec ${pkgs.bun}/bin/bun run slidev export --executable-path "${pkgs.chromium}/bin/chromium" "$@"
           '';
         };
