@@ -17,12 +17,20 @@ nix develop
 bun run dev
 ```
 
-## Building
+## Building and Exporting
 
 To generate a static build:
 
 ```sh
-nix run .#build
+bun run build
 ```
 
 The output will be placed in `dist/`.
+
+To export the presentation to PDF via Nix:
+
+```sh
+nix run .#pdf
+```
+
+This uses Nix's system Chromium binary under the hood to output `slides-export.pdf`.

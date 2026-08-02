@@ -7,10 +7,12 @@
     "dev": "slidev",
     "build": "slidev build",
     "export": "slidev export",
+    "export:pdf": "slidev export",
     "present": "slidev"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "playwright-chromium": "^1.62.1"
   },
   "peerDependencies": {
     "typescript": "^5"

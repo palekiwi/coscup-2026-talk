@@ -18,18 +18,29 @@
             exec ${pkgs.bun}/bin/bun run slidev "$@"
           '';
         };
+
+        export-pdf = pkgs.writeShellApplication {
+          name = "export-pdf";
+          runtimeInputs = [ pkgs.bun pkgs.nodejs pkgs.chromium ];
+          text = ''
+            exec ${pkgs.bun}/bin/bun run slidev export --executable-path "${pkgs.chromium}/bin/chromium" "$@"
+          '';
+        };
       in
       {
         devShells.default = pkgs.mkShell {
           packages = [
             pkgs.bun
             pkgs.nodejs
+            pkgs.chromium
           ];
         };
 
         packages = {
           default = present;
           present = present;
+          pdf = export-pdf;
+          export-pdf = export-pdf;
         };
       });
 }
