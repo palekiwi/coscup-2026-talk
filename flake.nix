@@ -6,7 +6,7 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -16,14 +16,6 @@
           runtimeInputs = [ pkgs.bun pkgs.nodejs ];
           text = ''
             exec ${pkgs.bun}/bin/bun run slidev "$@"
-          '';
-        };
-
-        build = pkgs.writeShellApplication {
-          name = "build";
-          runtimeInputs = [ pkgs.bun pkgs.nodejs ];
-          text = ''
-            exec ${pkgs.bun}/bin/bun run slidev build "$@"
           '';
         };
       in
@@ -38,13 +30,6 @@
         packages = {
           default = present;
           present = present;
-          build = build;
-        };
-
-        apps = {
-          default = flake-utils.lib.mkApp { drv = present; };
-          present = flake-utils.lib.mkApp { drv = present; };
-          build = flake-utils.lib.mkApp { drv = build; };
         };
       });
 }
