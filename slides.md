@@ -267,49 +267,6 @@ That third form is the first line of almost every flake you will ever open.
 
 ---
 
-# Nix configuration is a computation, not an inert text file
-
-```nix
-{
-  outputs = { self, nixpkgs, nixpkgs-ruby, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-        rubyVersion = pkgs.lib.fileContents ./.ruby-version;
-        ruby = nixpkgs-ruby.packages.${system}."ruby-${rubyVersion}";
-      in {
-        devShells.default = pkgs.mkShell {
-          packages = [ ruby pkgs.libpq ];
-        };
-      });
-}
-```
-
-- Reads the existing `.ruby-version` file programmatically
-- Evaluated dynamically via Git state; pinned precisely via `flake.lock`
-- *"Meet devs where they're at"* rendered as code
-
----
-
-# Double Gemfile: Computed configuration in action
-
-```nix
-# Synthesize an agent-specific Gemfile at evaluation time
-agentGemfile = pkgs.writeText "Gemfile.agent" (
-  pkgs.lib.replaceStrings 
-    ["gem 'pry'", "gem 'byebug'"] 
-    ["# gem 'pry'", "# gem 'byebug'"] 
-    (builtins.readFile ./Gemfile)
-  + "\ngem 'ruby-lsp'\n"
-);
-```
-
-- **Remove interactive debuggers:** Strips `pry`/`byebug` to prevent non-interactive agent hangs
-- **Inject agent tooling:** Adds `ruby-lsp` without editing checked-in `Gemfile`
-- **Pure and declarative:** Computed without side effects at evaluation time
-
----
-
 # Choose where to draw the Nix boundary
 
 <div class="grid grid-cols-2 gap-4">
