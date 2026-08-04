@@ -43,6 +43,10 @@
               nodejs_26
               typescript
             ];
+
+            shellHook = ''
+              echo "Ruby: $(ruby -v)" >&2
+            '';
           };
         };
       }
