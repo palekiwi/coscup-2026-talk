@@ -17,22 +17,72 @@ info: |
 
 COSCUP 2026 - Ruby Track
 
-**palekiwi** (`@palekiwi`)
+**Pawel Lisewski** (`@palekiwi`)
 
 ---
 
-# Shopify tried Nix, abandoned it, and came back
+# About Pale Kiwi (Pawel Lisewski)
 
-- **Era 1 (2019):** Burke Libbey introduced Nix to replace Homebrew and parts of Bundler across ~1,000 macOS laptops
-- **The Gap (2020-2023):** Shifted away to cloud development environments (*Spin / Isospin*)
-- **Era 2 (2024-present):** Moved back to local development with Nix and monorepos
-- **Key takeaways:** *Meet devs where they're at*, *migrate incrementally*, *allow opting-in*
+<div class="grid grid-cols-2 gap-4">
+<div>
 
-<v-click>
+- Professional Rubyist
+- Polyglot in love with functional programming, Haskell, Nix, Rust
+- Interested in declarative, portable, and reproducible environments
+- Red Hat Certified Engineer (RHCE)
+- **2017:** Running Rails on an Android tablet via terminal chroot
+- **2026:** Presenting this entire deck from NixOS running on a **Steam Deck**
 
-> *"Shopify has now learned this twice: you cannot just hand people Nix. So what do you do instead?"*
+</div>
+<div>
 
-</v-click>
+<img src="/mobility-android-based-rails.jpg" class="rounded-lg shadow-md max-h-70 mx-auto" alt="Rails on Android Tablet (2017)" />
+
+<p class="text-xs text-center text-gray-400 mt-2">Taipei Ruby Meetup, 2017: Rails running on Android tablet</p>
+
+</div>
+</div>
+
+---
+
+# Why this talk? Why now?
+
+- AI coding agents require predictable, reproducible runtime environments
+- Nix makes agents more effective, and agents make Nix more accessible
+- **The Shopify Anecdote:**
+  - **Era 1 (2019):** Introduced Nix across ~1,000 macOS laptops to replace Homebrew
+  - **Gap (2020-2023):** Shifted away to cloud development environments
+  - **Era 2 (2024-present):** Returned to local Nix development with incremental opt-in
+- Key takeaway: *Meet devs where they're at, migrate incrementally, allow opting-in*
+
+---
+
+# Three questions for the room
+
+<v-clicks>
+
+1. **Who uses an AI coding tool every day?**
+
+2. **Who has seen a `flake.nix` in a repository?**
+
+3. **Who has tried Nix, hit an error, and given up?**
+
+</v-clicks>
+
+---
+
+# Agents need real environments, not just code
+
+- Agents run tests, linters, LSPs, QA suites, and native builds
+- High execution speed means higher rate of environment interaction
+- Agents must operate inside isolated sandboxes to execute code safely
+- **The concrete harm scenario:**
+
+<div class="mt-6 p-4 bg-red-950 border border-red-800 rounded-lg">
+
+> *"The agent wrote the code, could not run the test suite because the box lacked the system library, declared success anyway, and you merged it."*
+
+</div>
 
 ---
 
@@ -55,71 +105,9 @@ COSCUP 2026 - Ruby Track
 +-------------------------------------------------------------+
 ```
 
-- Agents require isolated sandboxes to execute code safely
-- An empty container is safe, but lacks runtimes and system dependencies
-- Nix fills the sandbox deterministically, and runs identically on human laptops
+- An empty container is safe, but lacks runtimes and system C-libraries
+- Nix fills the sandbox deterministically, and runs identically on developer laptops
 - **Scope:** Development environment only (not production or deployment)
-
----
-
-# Eight years of Ruby and Nix in production
-
-<div class="grid grid-cols-2 gap-4">
-<div>
-
-- **palekiwi:** Personal control center & OSS maintainer
-- **cast:** Docker & Nix reproducible agent sandboxes
-- **cue:** File-based agent memory system in Rust
-- **2017:** Running Rails on an Android tablet via terminal chroot
-- **2026:** Presenting this entire deck from NixOS running on a **Steam Deck**
-
-</div>
-<div>
-
-<img src="/mobility-android-based-rails.jpg" class="rounded-lg shadow-md max-h-70 mx-auto" alt="Rails on Android Tablet (2017)" />
-
-<p class="text-xs text-center text-gray-400 mt-2">Taipei Ruby Meetup, 2017: Rails running on Android tablet</p>
-
-</div>
-</div>
-
----
-
-# Three questions for the room
-
-<v-clicks>
-
-1. **Who uses an AI coding tool every day?**
-
-2. **Who has seen a `flake.nix` in a repository?**
-
-3. **Who has tried Nix, hit an error, and given up?**
-
-</v-clicks>
-
-<v-click>
-
-<div class="mt-8 p-4 bg-gray-800 rounded-lg text-center">
-
-*"You already know the value is there. You just could not pay the price of entry."*
-
-</div>
-
-</v-click>
-
----
-
-# Agents need real environments, not just code
-
-- Agents run tests, linters, LSPs, QA suites, and native builds
-- High execution speed means higher rate of environment interaction
-- **The concrete harm scenario:**
-
-<div class="mt-6 p-4 bg-red-950 border border-red-800 rounded-lg">
-
-> *"The agent wrote the code, could not run the test suite because the box lacked the system library, declared success anyway, and you merged it."*
-
-</div>
 
 ---
 
@@ -142,15 +130,15 @@ COSCUP 2026 - Ruby Track
 
 ```markdown
 ## Prerequisites
-- Ruby 3.4.2 (via rbenv or asdf)
-- PostgreSQL 16 client libraries (libpq-dev)
+- Ruby 3.3.6 (via rbenv, asdf, or mise)
+- PostgreSQL 16 client C-libraries (libpq-dev)
 - ImageMagick / libvips
 - Node.js 22 & pnpm 9
 - Elm 0.19.1 & elm-format
 ```
 
 - Written in prose, enforced by hope
-- Language version managers cover runtimes, not C libraries or tools
+- Language version managers cover runtimes, not system C-libraries or tools
 - Agents misread or install conflicting versions without isolation
 
 <v-click>
@@ -161,12 +149,12 @@ COSCUP 2026 - Ruby Track
 
 ---
 
-# Four Ruby versions, two languages, one laptop
+# 3 Ruby versions, 4 languages, 1 container
 
 ```
 +------------------+  +------------------+  +------------------+
 | storefront       |  | checkout-api     |  | identity         |
-| Ruby 3.4.2       |  | Ruby 3.3.6       |  | Ruby 3.2.7       |
+| Ruby 3.3.6       |  | Ruby 3.2.7       |  | Ruby 3.1.6       |
 | Elm / Node 22    |  | Sinatra          |  | Rails 7.1        |
 +------------------+  +------------------+  +------------------+
 +------------------+  +------------------+  +------------------+
@@ -175,13 +163,9 @@ COSCUP 2026 - Ruby Track
 +------------------+  +------------------+  +------------------+
 ```
 
-- A development environment is mostly not gems:
-  `libpq`, `libxml2`, `libxslt`, `pkg-config`, `nodejs`, `pnpm`, `elm`, `elm-format`, `elm-language-server`
-- Version managers handle the interpreter, never the system dependencies
-
 ---
 
-# A flake.nix is the entry point for agents
+# A flake as everyone's entrypoint
 
 - When a repository contains a `flake.nix`, the agent enters with `nix develop`
 - Zero manual environment installation steps
@@ -190,7 +174,7 @@ COSCUP 2026 - Ruby Track
 
 ---
 
-# Nix is a purely functional, evaluated language
+# Nix is a purely functional, lazily evaluated, domain-specific programming language.
 
 ```nix
 # Anonymous function: parameter: body
@@ -203,16 +187,16 @@ x: x + 1
 ({ x, y }: x + y) { x = 2; y = 3; }   # => 5
 ```
 
-- `:` is the lambda arrow (not type annotation)
+That third form is the first line of almost every flake you will ever open.
+
+- `:` is the lambda arrow (not a type annotation)
 - `=` binds values in attribute sets (not variable assignment)
 - `{ }` with `:` defines function parameter destructuring
 - `...` is real syntax meaning "and any other inputs"
 
-> *"That third form is the first line of almost every flake you will ever open."*
-
 ---
 
-# A complete environment in forty lines of Nix
+# A minimal development environment in Nix
 
 ```nix {all|2-6|9-13|14-20|all}
 {
@@ -231,7 +215,7 @@ x: x + 1
         devShells.default = pkgs.mkShell {
           packages = [
             ruby
-            pkgs.libpq
+            pkgs.libpq   # System C-library required by pg gem
             pkgs.bundler
           ];
         };
@@ -239,13 +223,9 @@ x: x + 1
 }
 ```
 
-- Complete, self-contained development environment
-- `flake.lock` pins every transitive dependency
-- Enter with `nix develop`
-
 ---
 
-# Read existing files instead of rewriting them
+# Nix configuration is a computation, not an inert text file
 
 ```nix
 {
@@ -263,9 +243,28 @@ x: x + 1
 }
 ```
 
-- Reads the `.ruby-version` file the team already maintains
-- No new config files or lockfiles for human developers
+- Reads the existing `.ruby-version` file programmatically
+- Evaluated dynamically via Git state; pinned precisely via `flake.lock`
 - *"Meet devs where they're at"* rendered as code
+
+---
+
+# Double Gemfile: Computed configuration in action
+
+```nix
+# Synthesize an agent-specific Gemfile at evaluation time
+agentGemfile = pkgs.writeText "Gemfile.agent" (
+  pkgs.lib.replaceStrings 
+    ["gem 'pry'", "gem 'byebug'"] 
+    ["# gem 'pry'", "# gem 'byebug'"] 
+    (builtins.readFile ./Gemfile)
+  + "\ngem 'ruby-lsp'\n"
+);
+```
+
+- **Remove interactive debuggers:** Strips `pry`/`byebug` to prevent non-interactive agent hangs
+- **Inject agent tooling:** Adds `ruby-lsp` without editing checked-in `Gemfile`
+- **Pure and declarative:** Computed without side effects at evaluation time
 
 ---
 
@@ -300,49 +299,67 @@ Shopify insight: *"nix + bundix put up an immutable wall -- avoid bundix initial
 
 ---
 
-# Configuration is a computed value, not static text
+# Hermetic gems with bundlerEnv
 
 ```nix
-# Synthesize an agent-specific Gemfile at evaluation time
-agentGemfile = pkgs.writeText "Gemfile.agent" (
-  pkgs.lib.replaceStrings 
-    ["gem 'pry'", "gem 'byebug'"] 
-    ["# gem 'pry'", "# gem 'byebug'"] 
-    (builtins.readFile ./Gemfile)
-  + "\ngem 'ruby-lsp'\n"
-);
+{
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+        gems = pkgs.bundlerEnv {
+          name = "spabreaks-gems";
+          ruby = pkgs.ruby_3_3;
+          gemdir = ./.;
+        };
+      in {
+        devShells.default = pkgs.mkShell {
+          packages = [ gems gems.wrappedRuby pkgs.libpq ];
+        };
+      });
+}
 ```
 
-- **Remove interactive debuggers:** Strips `pry`/`byebug` to prevent non-interactive agent hangs
-- **Inject agent tooling:** Adds `ruby-lsp` without editing checked-in `Gemfile`
-- **Pure and declarative:** Computed without side effects at evaluation time
+- Gems built and isolated inside `/nix/store` via `bundlerEnv`
+- Native C-extensions compiled against Nix system libraries
+- Fully hermetic environment pinned by `gemset.nix`
 
 ---
 
-# The laptop contract is the sandbox contract
-
-<div class="text-center my-12">
+# Case Study: The palekiwi multi-repository ecosystem
 
 ```
-  Developer Laptop (flake.nix)
-             │
-             ▼
-┌───────────────────────────┐
-│   Identical Environment   │
-└───────────────────────────┘
-             ▲
-             │
-   Agent Sandbox (flake.nix)
++-------------------------------------------------------------+
+|               palekiwi Personal Control Center              |
+|                     (Cross-project workspace)               |
++------------------------------+------------------------------+
+                               |
+       +-----------------------+-----------------------+
+       |                                               |
+       v                                               v
++-----------------------------+         +-----------------------------+
+| cue (Rust CLI & Cuelib)     |         | cast (Rust Sandbox Engine)  |
+| - cue-plugins (TS/Bun)      |         | - cast-agent                |
+| - cue.nvim (Lua plugin)     |         | - cast-mcp-client           |
++-----------------------------+         +-----------------------------+
 ```
 
-</div>
-
-- One environment definition for both human and AI pair programmer
-- Zero environment drift between local dev and agent execution
+- Real workspace composition across Rust, TypeScript, Lua, and Nix
+- Nix manages build sandboxes and cross-repo tool availability
 
 ---
 
-# Layer global agent tools over project shells
+# Vertical composition: Nesting development shells
+
+```bash
+# Outer shell: Global AI agent tools provided by host
+$ nix develop github:palekiwi/nix-config#opencode
+(cast-opencode) $
+
+# Inner shell: Project specific environment
+(cast-opencode) $ nix develop
+(spabreaks-dev) $ bundle exec rake test
+```
 
 ```
 +-------------------------------------------------------+
@@ -355,31 +372,29 @@ agentGemfile = pkgs.writeText "Gemfile.agent" (
 +-------------------------------------------------------+
 ```
 
-- Global agent capabilities provided by host or outer flake
-- Project specifics supplied by repository flake
-- Vertical composition without global environment pollution
-
 ---
 
-# Share packages directly across repositories
+# Seamless package distribution across repositories
 
 ```nix
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    cue.url = "github:palekiwi-labs/cue";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    # Pin to explicit Git commit
+    cast.url = "github:palekiwi-labs/cast/2b25028b6cdcb4ff1a8d8dbb1624276fb2656a8d";
+    # Local filesystem path
+    cue-plugins.url = "path:../cue-plugins";
   };
 
-  outputs = { self, nixpkgs, cue }: {
-    # Consume Rust binary directly in a TypeScript project build
-    # No package registry, no release step required
+  outputs = { self, nixpkgs, cast, cue-plugins }: {
+    # Consume Rust binaries directly in project builds
+    # Zero release process or package registry required
   };
 }
 ```
 
 - Direct cross-repository dependency consumption
-- Rust binary (`cue`) consumed in TypeScript plugin (`cue-plugins`)
-- Zero release process or registry overhead
+- Pinning via Git revisions or local filesystem sources
 
 ---
 
@@ -391,12 +406,12 @@ agentGemfile = pkgs.writeText "Gemfile.agent" (
 |             nix-daemon (owns /nix/store Read-Write)          |
 +------------------------------+------------------------------+
                                | Read-Only Mount (/nix)
-             +-----------------+-----------------+
-             v                                   v
-+--------------------------+       +--------------------------+
-|  Agent Sandbox 1         |       |  Agent Sandbox 2         |
-|  (Debian + mounted /nix) |       |  (Debian + mounted /nix) |
-+--------------------------+       +--------------------------+
+              +----------------+----------------+
+              v                                  v
++--------------------------+        +--------------------------+
+|  Agent Sandbox 1         |        |  Agent Sandbox 2         |
+|  (Debian + mounted /nix) |        |  (Debian + mounted /nix) |
++--------------------------+        +--------------------------+
 ```
 
 - Sandboxes are lightweight Debian containers mounting `/nix` read-only
@@ -409,21 +424,13 @@ agentGemfile = pkgs.writeText "Gemfile.agent" (
 
 - LLMs are remarkably effective at writing and repairing Nix flakes
 - Scattered, online Nix documentation is well-suited for model synthesis
-- **Real-world experience:** ~80% first-pass success rate; agent self-corrects evaluation errors
+- Agents handle syntax and inputs while human developers audit the contract
 
 <div class="mt-8 p-4 bg-gray-800 rounded-lg text-center">
 
 *"Don't climb the learning curve. Delegate it."*
 
 </div>
-
----
-
-# You must audit the contract, not author it
-
-- Forty lines of `flake.nix` + `flake.lock` is far more auditable than a README + Dockerfile + CI YAML
-- `nix develop` evaluates and builds the exact locked inputs
-- Boundary 1 (System packages + Ruby) requires nobody's permission to start
 
 ---
 
@@ -457,7 +464,7 @@ agentGemfile = pkgs.writeText "Gemfile.agent" (
 
 <img src="/palekiwi-avatar.jpg" class="rounded-full w-40 h-40 mx-auto shadow-lg mb-4" alt="palekiwi" />
 
-<p class="text-center text-sm font-semibold">palekiwi</p>
+<p class="text-center text-sm font-semibold">Pawel Lisewski (@palekiwi)</p>
 
 </div>
 </div>
