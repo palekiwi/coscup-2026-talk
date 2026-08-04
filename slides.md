@@ -27,11 +27,10 @@ COSCUP 2026 - Ruby Track
 <div>
 
 - Professional Rubyist
-- Polyglot in love with functional programming, Haskell, Nix, Rust
-- Interested in declarative, portable, and reproducible environments
-- Red Hat Certified Engineer (RHCE)
-- **2017:** Running Rails on an Android tablet via terminal chroot
-- **2026:** Presenting this entire deck from NixOS running on a **Steam Deck**
+- Polyglot programmer (Nix, Rust, Haskell, TS, Lua, Nushell, ...)
+- Red Hat Certified Engineer (configuration as a code, Ansible)
+- Creator of AI tooling (sandboxes, memory/context management, observability)
+- Obsessive tinkerer and explorer
 
 </div>
 <div>
@@ -47,14 +46,18 @@ COSCUP 2026 - Ruby Track
 
 # Why this talk? Why now?
 
-- AI coding agents require predictable, reproducible runtime environments
-- Nix makes agents more effective, and agents make Nix more accessible
 - **The Shopify Anecdote:**
   - **Era 1 (2019):** Introduced Nix across ~1,000 macOS laptops to replace Homebrew
   - **Gap (2020-2023):** Shifted away to cloud development environments
   - **Era 2 (2024-present):** Returned to local Nix development with incremental opt-in
-- Key takeaway: *Meet devs where they're at, migrate incrementally, allow opting-in*
+- AI coding agents require predictable, reproducible runtime environments
+- Nix makes agents more effective, and agents make Nix more accessible
 
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
+
+**Key takeaway:**  *Meet devs where they're at, migrate incrementally, allow opting-in*
+
+</div>
 ---
 
 # Three questions for the room
@@ -71,6 +74,38 @@ COSCUP 2026 - Ruby Track
 
 ---
 
+# A few words about security
+
+
+<div class="grid grid-cols-2 gap-4">
+<div>
+
+**Off-the sandboxes:**
+
+- bubblewrap / seatbelt
+- containers (docker/podman)
+- gVisor
+- firecracker (microVMs)
+- KVM
+- dedicated hardware
+
+</div>
+<div>
+
+**Aspects of isolation:**
+
+- filesystem
+- processes
+- system kernel
+- user namespace
+- envirnoment variables
+- networking
+- hardware resources (constraints)
+
+</div>
+</div>
+---
+
 # Agents need real environments, not just code
 
 - Agents run tests, linters, LSPs, QA suites, and native builds
@@ -78,9 +113,12 @@ COSCUP 2026 - Ruby Track
 - Agents must operate inside isolated sandboxes to execute code safely
 - **The concrete harm scenario:**
 
-<div class="mt-6 p-4 bg-red-950 border border-red-800 rounded-lg">
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
-> *"The agent wrote the code, could not run the test suite because the box lacked the system library, declared success anyway, and you merged it."*
+*"The agent wrote the code, could not run the test suite because the box
+lacked the system library.
+<br>
+Declared success anyway, and you merged it."*
 
 </div>
 
@@ -90,7 +128,7 @@ COSCUP 2026 - Ruby Track
 
 ```
 +-------------------------------------------------------------+
-|                      Developer Laptop                       |
+|                      Developer Machine                      |
 |                                                             |
 |  +-----------------------+     +-------------------------+  |
 |  |     AI Agent          |     |    Developer Shell      |  |
@@ -100,14 +138,14 @@ COSCUP 2026 - Ruby Track
 |              v                              v               |
 |  +-------------------------------------------------------+  |
 |  |             flake.nix / Nix Store (/nix)              |  |
-|  |  (Ruby 3.3.6, libpq, libvips, Node, Elm toolchain)    |  |
+|  |  (Ruby 4.0.6, libpq, libvips, Node, Elm toolchain)    |  |
 |  +-------------------------------------------------------+  |
 +-------------------------------------------------------------+
 ```
 
-- An empty container is safe, but lacks runtimes and system C-libraries
-- Nix fills the sandbox deterministically, and runs identically on developer laptops
-- **Scope:** Development environment only (not production or deployment)
+- An empty container is safe, but lacks runtimes, system libraries and developer tools
+- Nix fills the sandbox deterministically, and runs identically in each environment
+- **Talk's Scope:** Development environment only, pair-programming with AI
 
 ---
 
@@ -130,46 +168,53 @@ COSCUP 2026 - Ruby Track
 
 ```markdown
 ## Prerequisites
-- Ruby 3.3.6 (via rbenv, asdf, or mise)
+- Ruby 4.0.6 (via rbenv, asdf, or mise)
 - PostgreSQL 16 client C-libraries (libpq-dev)
 - ImageMagick / libvips
-- Node.js 22 & pnpm 9
+- Node.js 26 & pnpm 11
 - Elm 0.19.1 & elm-format
 ```
 
 - Written in prose, enforced by hope
-- Language version managers cover runtimes, not system C-libraries or tools
-- Agents misread or install conflicting versions without isolation
+- Language version managers cover runtimes, not system libraries or tools
+- Agents fails or install conflicting versions without isolation
 
-<v-click>
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
-> *"Your README promises an environment. Nix keeps the promise."*
+Your README promises an environment. Nix keeps the promise.
 
-</v-click>
+</div>
 
 ---
 
-# 3 Ruby versions, 4 languages, 1 container
+# Example 1: A Ruby Shop
 
 ```
 +------------------+  +------------------+  +------------------+
 | storefront       |  | checkout-api     |  | identity         |
-| Ruby 3.3.6       |  | Ruby 3.2.7       |  | Ruby 3.1.6       |
-| Elm / Node 22    |  | Sinatra          |  | Rails 7.1        |
+| Ruby 4.0.6       |  | Ruby 3.3.6       |  | Ruby 4.0.2       |
+| TS / Elm         |  | Sinatra          |  | Rails 8.0        |
 +------------------+  +------------------+  +------------------+
 +------------------+  +------------------+  +------------------+
 | notifications    |  | admin-ui         |  | legacy-crm       |
-| Go 1.23 / Redis  |  | Node 22 / Vue 3  |  | Ruby 1.8.7       |
+| Go 1.23 / Redis  |  | Node 26 / Vue 3  |  | Ruby 1.8.7       |
+|                  |  | React            |  | Java, Go         |
 +------------------+  +------------------+  +------------------+
 ```
+
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
+
+4 Ruby versions, 5 languages, 1 container
+
+</div>
 
 ---
 
 # A flake as everyone's entrypoint
 
 - When a repository contains a `flake.nix`, the agent enters with `nix develop`
-- Zero manual environment installation steps
-- Zero global version manager shims
+- No manual environment installation steps
+- No global version manager shims
 - Identical environment for both agent and human developer
 
 ---
@@ -326,26 +371,28 @@ Shopify insight: *"nix + bundix put up an immutable wall -- avoid bundix initial
 
 ---
 
-# Case Study: The palekiwi multi-repository ecosystem
+# Example 2: An opensource AI tooling ecosystem
 
 ```
-+-------------------------------------------------------------+
-|               palekiwi Personal Control Center              |
-|                     (Cross-project workspace)               |
-+------------------------------+------------------------------+
-                               |
-       +-----------------------+-----------------------+
-       |                                               |
-       v                                               v
-+-----------------------------+         +-----------------------------+
-| cue (Rust CLI & Cuelib)     |         | cast (Rust Sandbox Engine)  |
-| - cue-plugins (TS/Bun)      |         | - cast-agent                |
-| - cue.nvim (Lua plugin)     |         | - cast-mcp-client           |
-+-----------------------------+         +-----------------------------+
++------------------+  +------------------+  +------------------+
+| cast             |  | cue              |  | cue-plugins      |
+|                  |  |                  |  |                  |
+| Rust, Nix        |  | Rust, TS         |  | TS, Bun          |
++------------------+  +------------------+  +------------------+
++------------------+  +------------------+  +------------------+
+| cue.nvim         |  | agent harnesses  |  | OSS tooling      |
+|                  |  |                  |  |                  |
+| Lua              |  | TS, Rust, Go     |  | ???              |
++------------------+  +------------------+  +------------------+
 ```
 
-- Real workspace composition across Rust, TypeScript, Lua, and Nix
-- Nix manages build sandboxes and cross-repo tool availability
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
+
+Real workspace composition across Rust, TypeScript, Lua, and Nix
+<br/>
+Nix manages builds, cross-repo tool availability and distribution
+
+</div>
 
 ---
 
@@ -353,21 +400,21 @@ Shopify insight: *"nix + bundix put up an immutable wall -- avoid bundix initial
 
 ```bash
 # Outer shell: Global AI agent tools provided by host
-$ nix develop github:palekiwi/nix-config#opencode
-(cast-opencode) $
+$ nix develop ~/.config/cast/nix
+(global-env) $
 
 # Inner shell: Project specific environment
 (cast-opencode) $ nix develop
-(spabreaks-dev) $ bundle exec rake test
+(project-env) $ bundle exec rubocop
 ```
 
 ```
 +-------------------------------------------------------+
 |  Global Agent Harness Shell (llm-agents flake)        |
-|  (opencode, cue, ast-grep, git)                        |
+|  (opencode, pi, cue, ast-grep, gh)                    |
 |  +-------------------------------------------------+  |
 |  |  Project Development Shell (flake.nix)          |  |
-|  |  (Ruby 3.3.6, libpq, libvips, nodejs)           |  |
+|  |  (Ruby 4.0.6, libpq, libvips, nodejs)           |  |
 |  +-------------------------------------------------+  |
 +-------------------------------------------------------+
 ```
@@ -380,15 +427,14 @@ $ nix develop github:palekiwi/nix-config#opencode
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    # Pin to explicit Git commit
-    cast.url = "github:palekiwi-labs/cast/2b25028b6cdcb4ff1a8d8dbb1624276fb2656a8d";
-    # Local filesystem path
-    cue-plugins.url = "path:../cue-plugins";
+    # Optionally pin to explicit Git brranch
+    cast.url = "github:palekiwi-labs/cast/master";
+    # Optionally pin to explicit Git commit
+    cue.url = "github:palekiwi-labs/cue/2b25028b6cdcb4ff1a8d8dbb1624276fb2656a8d";
   };
 
-  outputs = { self, nixpkgs, cast, cue-plugins }: {
-    # Consume Rust binaries directly in project builds
-    # Zero release process or package registry required
+  outputs = { self, nixpkgs, cast, cue }: {
+    # Consume binaries directly in project environments
   };
 }
 ```
@@ -416,11 +462,11 @@ $ nix develop github:palekiwi/nix-config#opencode
 
 - Sandboxes are lightweight Debian containers mounting `/nix` read-only
 - Package reuse across all sandboxes at package granularity
-- Zero rebuild time, zero store corruption risk
+- No need to rebuild or fetch dependencies again
 
 ---
 
-# Don't climb the learning curve. Delegate it.
+# The learning curve is still there but...
 
 - LLMs are remarkably effective at writing and repairing Nix flakes
 - Scattered, online Nix documentation is well-suited for model synthesis
@@ -449,7 +495,7 @@ $ nix develop github:palekiwi/nix-config#opencode
 
 ---
 
-# It worked on my machine. Now it works on every machine.
+# Worked on my machine, works on every machine.
 
 <div class="grid grid-cols-2 gap-4">
 <div>
@@ -462,15 +508,9 @@ $ nix develop github:palekiwi/nix-config#opencode
 </div>
 <div>
 
-<img src="/palekiwi-avatar.jpg" class="rounded-full w-40 h-40 mx-auto shadow-lg mb-4" alt="palekiwi" />
+<img src="/palekiwi-avatar.jpg" class="rounded-2 w-40 h-40 mx-auto shadow-lg mb-4" alt="palekiwi" />
 
 <p class="text-center text-sm font-semibold">Pawel Lisewski (@palekiwi)</p>
 
 </div>
-</div>
-
-<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center font-bold">
-
-*"It worked on my machine. Now it works on every machine -- including this one."*
-
 </div>
