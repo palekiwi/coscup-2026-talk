@@ -298,30 +298,78 @@ Shopify insight: *"nix + bundix put up an immutable wall -- avoid bundix initial
 
 ---
 
-# Hermetic gems with bundlerEnv
+# Community flakes supply specialized package overlays
 
-```nix
+```nix {all|4-10|16-21|all}
 {
-  outputs = { self, nixpkgs, flake-utils }:
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-ruby = {
+      url = "github:bobvanderlinden/nixpkgs-ruby";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-        gems = pkgs.bundlerEnv {
-          name = "spabreaks-gems";
-          ruby = pkgs.ruby_3_3;
-          gemdir = ./.;
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ inputs.nixpkgs-ruby.overlays.default ];
         };
-      in {
-        devShells.default = pkgs.mkShell {
-          packages = [ gems gems.wrappedRuby pkgs.libpq ];
-        };
-      });
+      in { ... });
 }
 ```
 
-- Gems built and isolated inside `/nix/store` via `bundlerEnv`
-- Native C-extensions compiled against Nix system libraries
-- Fully hermetic environment pinned by `gemset.nix`
+- `follows` pins community flake dependencies to your main `nixpkgs` revision
+- Overlays extend `pkgs` directly without modifying upstream nixpkgs
+- Specialized runtimes (`nixpkgs-ruby`) remain fully auditable and locked
+
+---
+
+# Nix files compute configuration from local files
+
+```nix {all|1-2|4-7|all}
+# Read local team file dynamically
+rubyVersion = pkgs.lib.fileContents ./.ruby-version;
+
+# Customize runtime compilation parameters
+ruby = (pkgs."ruby-${rubyVersion}").override {
+  yjitSupport = false;
+};
+```
+
+- Meets developers where they are at by reading `.ruby-version` programmatically
+- Packages are functions — `.override` customizes build flags deterministically
+- Computed at evaluation time without global version manager shims
+
+---
+
+# wrappedRuby and shell hooks build polyglot environments
+
+```nix {all|1-6|10-12|15-17|all}
+gems = pkgs.bundlerEnv {
+  ruby = ruby;
+  gemfile = ./Gemfile;
+  lockfile = ./Gemfile.lock;
+  gemset = ./gemset.nix;
+};
+
+devShells.default = pkgs.mkShell {
+  buildInputs = with pkgs; [
+    gems
+    gems.wrappedRuby
+    nodejs_26
+  ];
+  shellHook = ''
+    echo "Ruby: $(ruby -v)" >&2
+  '';
+};
+```
+
+- `wrappedRuby` bakes `GEM_HOME`/`GEM_PATH` into wrappers, eliminating `bundle exec`
+- Bundler gems, Node.js, and system C-libraries coexist in a single shell contract
+- `shellHook` initializes diagnostics cleanly on `nix develop` startup
 
 ---
 
