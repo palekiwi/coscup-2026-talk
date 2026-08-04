@@ -368,8 +368,71 @@ devShells.default = pkgs.mkShell {
 ```
 
 - `wrappedRuby` bakes `GEM_HOME`/`GEM_PATH` into wrappers, eliminating `bundle exec`
-- Bundler gems, Node.js, and system C-libraries coexist in a single shell contract
-- `shellHook` initializes diagnostics cleanly on `nix develop` startup
+
+---
+
+# The complete production flake brings every piece together
+
+<div class="h-[360px] overflow-y-auto text-xs font-mono rounded border border-gray-700 my-2">
+
+```nix
+{
+  description = "Some Ruby Project";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs-ruby = {
+      url = "github:bobvanderlinden/nixpkgs-ruby";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [
+            inputs.nixpkgs-ruby.overlays.default
+          ];
+        };
+
+        rubyVersion = pkgs.lib.fileContents ./.ruby-version;
+        ruby = (pkgs."ruby-${rubyVersion}").override {
+          yjitSupport = false;
+        };
+
+        gems = pkgs.bundlerEnv {
+          ruby = ruby;
+          gemfile = ./Gemfile;
+          lockfile = ./Gemfile.lock;
+          gemset = ./gemset.nix;
+        };
+
+      in
+      {
+        devShells = {
+          default = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              gems
+              gems.wrappedRuby
+
+              nodejs_26
+              typescript
+            ];
+
+            shellHook = ''
+              echo "Ruby: $(ruby -v)" >&2
+            '';
+          };
+        };
+      }
+    );
+}
+```
+
+</div>
 
 ---
 
