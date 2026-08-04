@@ -247,7 +247,6 @@ That third form is the first line of almost every flake you will ever open.
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixpkgs-ruby.url = "github:bobvanderlinden/nixpkgs-ruby";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
@@ -255,13 +254,11 @@ That third form is the first line of almost every flake you will ever open.
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        ruby = nixpkgs-ruby.packages.${system}."ruby-3.3.6";
       in {
         devShells.default = pkgs.mkShell {
           packages = [
-            ruby
-            pkgs.libpq   # System C-library required by pg gem
-            pkgs.bundler
+            pkgs.ruby_3_3
+            pkgs.libpq
           ];
         };
       });
