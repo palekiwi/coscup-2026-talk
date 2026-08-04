@@ -28,7 +28,7 @@ COSCUP 2026 - Ruby Track
 
 - Professional Rubyist
 - Polyglot programmer (Nix, Rust, Haskell, TS, Lua, Nushell, ...)
-- Red Hat Certified Engineer (configuration as a code, Ansible)
+- Red Hat Certified Engineer (configuration as code, Ansible)
 - Creator of AI tooling (sandboxes, memory/context management, observability)
 - Obsessive tinkerer and explorer
 
@@ -250,7 +250,7 @@ That third form is the first line of almost every flake you will ever open.
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-ruby, flake-utils }:
+  outputs = { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
