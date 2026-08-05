@@ -44,20 +44,37 @@ COSCUP 2026 - Ruby Track
 
 ---
 
+# Agenda
+
+<v-clicks>
+
+1. **Why this? Why now?** — AI pair programmers and runtime requirements
+2. **The problem you don't realize you have** — Unenforced READMEs and empty sandboxes
+3. **The promise Nix keeps** — Deterministic development environments
+4. **Case Study 1: Nix Deep Dive for Rubyists** — Flakes, syntax, and Ruby setups
+5. **Case Study 2: Open Source with Nix** — Ecosystem composition and distribution
+6. **Next steps** — Delegate the learning curve and start today
+
+</v-clicks>
+
+---
+
 # Why this talk? Why now?
 
-- **The Shopify Anecdote:**
-  - **Era 1 (2019):** Introduced Nix across ~1,000 macOS laptops to replace Homebrew
-  - **Gap (2020-2023):** Shifted away to cloud development environments
-  - **Era 2 (2024-present):** Returned to local Nix development with incremental opt-in
-- AI coding agents require predictable, reproducible runtime environments
-- Nix makes agents more effective, and agents make Nix more accessible
+- **Shopify is going all-in on Nix:**
+  - Standardized local development across thousands of engineers
+  - Spoke with Shopify platform engineers at RubyKaigi
+  - Key takeaway: *Meet devs where they're at, migrate incrementally, allow opting-in*
+- **AI coding agents need deterministic runtimes:**
+  - Agents can only be as good as the environment you give them
+  - Nix makes agents effective, agents make Nix accessible
 
 <div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
-**Key takeaway:**  *Meet devs where they're at, migrate incrementally, allow opting-in*
+*Nix provides the contract between developers and AI agents.*
 
 </div>
+
 ---
 
 # Three questions for the room
@@ -74,36 +91,27 @@ COSCUP 2026 - Ruby Track
 
 ---
 
-# A few words about security
+# Your README is a contract nobody enforces
 
+```markdown
+## Prerequisites
+- Ruby 3.3.6 (via rbenv, asdf, or mise)
+- PostgreSQL 16 client C-libraries (libpq-dev)
+- ImageMagick / libvips
+- Node.js 22 & pnpm 10
+- Elm 0.19.1 & elm-format
+```
 
-<div class="grid grid-cols-2 gap-4">
-<div>
+- Written in prose, enforced by hope
+- Version managers cover language runtimes, not C-libraries or system tools
+- Developers waste hours debugging setup drift; AI agents fail silently or break system packages
 
-**Off-the sandboxes:**
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
-- bubblewrap / seatbelt
-- containers (docker/podman)
-- gVisor
-- firecracker (microVMs)
-- KVM
-- dedicated hardware
-
-</div>
-<div>
-
-**Aspects of isolation:**
-
-- filesystem
-- processes
-- system kernel
-- user namespace
-- envirnoment variables
-- networking
-- hardware resources (constraints)
+**Your README promises an environment. Nix keeps the promise.**
 
 </div>
-</div>
+
 ---
 
 # Agents need real environments, not just code
@@ -138,52 +146,14 @@ Declared success anyway, and you merged it."*
 |              v                              v               |
 |  +-------------------------------------------------------+  |
 |  |             flake.nix / Nix Store (/nix)              |  |
-|  |  (Ruby 4.0.6, libpq, libvips, Node, Elm toolchain)    |  |
+|  |  (Ruby 3.3.6, libpq, libvips, Node, Elm toolchain)    |  |
 |  +-------------------------------------------------------+  |
 +-------------------------------------------------------------+
 ```
 
-- An empty container is safe, but lacks runtimes, system libraries and developer tools
-- Nix fills the sandbox deterministically, and runs identically in each environment
-- **Talk's Scope:** Development environment only, pair-programming with AI
-
----
-
-# Containers isolate processes, but fill boxes poorly
-
-- **Package availability** is tied to the base distribution image
-- **Composition** occurs at process boundaries rather than package boundaries
-- **Slow rebuilds** whenever environment definitions change
-- **Caching** operates at layer granularity instead of package granularity
-
-<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
-
-*Composition, not competition: Nix composes with containers; it does not replace them.*
-
-</div>
-
----
-
-# Your README is a contract nobody enforces
-
-```markdown
-## Prerequisites
-- Ruby 4.0.6 (via rbenv, asdf, or mise)
-- PostgreSQL 16 client C-libraries (libpq-dev)
-- ImageMagick / libvips
-- Node.js 26 & pnpm 11
-- Elm 0.19.1 & elm-format
-```
-
-- Written in prose, enforced by hope
-- Language version managers cover runtimes, not system libraries or tools
-- Agents fails or install conflicting versions without isolation
-
-<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
-
-Your README promises an environment. Nix keeps the promise.
-
-</div>
+- **Containers isolate processes, but fill boxes poorly:** package availability tied to distro, slow rebuilds, layer-granularity caching
+- Nix fills the sandbox deterministically and runs identically on human laptops
+- *Composition, not competition: Nix composes with containers; it does not replace them.*
 
 ---
 
@@ -192,34 +162,23 @@ Your README promises an environment. Nix keeps the promise.
 ```
 +------------------+  +------------------+  +------------------+
 | storefront       |  | checkout-api     |  | identity         |
-| Ruby 4.0.6       |  | Ruby 3.3.6       |  | Ruby 4.0.2       |
+| Ruby 3.3.6       |  | Ruby 3.3.4       |  | Ruby 4.0.2       |
 | TS / Elm         |  | Sinatra          |  | Rails 8.0        |
 +------------------+  +------------------+  +------------------+
 +------------------+  +------------------+  +------------------+
 | notifications    |  | admin-ui         |  | legacy-crm       |
-| Go 1.23 / Redis  |  | Node 26 / Vue 3  |  | Ruby 1.8.7       |
+| Go 1.23 / Redis  |  | Node 22 / Vue 3  |  | Ruby 1.8.7       |
 |                  |  | React            |  | Java, Go         |
 +------------------+  +------------------+  +------------------+
 ```
 
-<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
-
-4 Ruby versions, 5 languages, 1 container
-
-</div>
+- 4 Ruby versions, 5 languages, 1 developer laptop
+- When a repo contains `flake.nix`, anyone (or any agent) enters via `nix develop`
+- No manual environment installation, no global version manager shims
 
 ---
 
-# A flake as everyone's entrypoint
-
-- When a repository contains a `flake.nix`, the agent enters with `nix develop`
-- No manual environment installation steps
-- No global version manager shims
-- Identical environment for both agent and human developer
-
----
-
-# Nix is a purely functional, lazily evaluated, domain-specific programming language.
+# Nix is a purely functional language
 
 ```nix
 # Anonymous function: parameter: body
@@ -241,9 +200,9 @@ That third form is the first line of almost every flake you will ever open.
 
 ---
 
-# A minimal development environment in Nix
+# Interactive Quiz: Can you read a flake?
 
-```nix {all|2-6|9-13|14-20|all}
+```nix {all|1,22|2-5,7|7|2,7|all}
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -259,125 +218,76 @@ That third form is the first line of almost every flake you will ever open.
           packages = [
             pkgs.ruby_3_3
             pkgs.libpq
+            pkgs.libvips
           ];
         };
       });
 }
 ```
 
+<v-clicks>
+
+- **Q1:** What are the outermost `{ ... }`? *(An attribute set!)*
+- **Q2:** What are `inputs` and `outputs`? *(Attributes / keys in the set!)*
+- **Q3:** What is the type of `outputs`? *(A function taking an attribute set!)*
+- **Q4:** What connects `inputs` and `outputs`? *(Pattern matching / destructuring inputs!)*
+
+</v-clicks>
+
 ---
 
-# Choose where to draw the Nix boundary
+# Boundary 1: Meet developers (and Ruby) where they are
 
 <div class="grid grid-cols-2 gap-4">
 <div class="p-4 bg-gray-800 rounded-lg">
 
-### Boundary 1 (Pragmatic)
-- Nix provides system packages (`libpq`, `libvips`) + Ruby
-- Bundler manages gems (`bundle install`) as usual
-- Zero friction for existing gem workflows
-- Immediate win in bare sandboxes
+### What Nix provides:
+- System C-libraries (`libpq`, `libvips`, `openssl`)
+- Exact Ruby runtime (`ruby_3_3`)
+- Polyglot tooling (`nodejs`, `pnpm`, `elm`)
 
 </div>
 <div class="p-4 bg-gray-800 rounded-lg">
 
-### Boundary 2 (Hermetic)
-- Nix manages gems via `bundlerEnv` / `bundix`
-- Stored in `/nix/store`, immutable and fully locked
-- Ideal for full reproducibility
-- Requires team adaptation
+### What Bundler provides:
+- Gems managed via `Gemfile` & `Gemfile.lock`
+- Standard `bundle install` / `bundle exec`
+- Zero friction for existing Ruby developer habits
 
 </div>
 </div>
 
-<div class="mt-4 p-3 bg-gray-900 border border-gray-700 rounded text-sm text-center">
+<div class="mt-6 p-4 bg-gray-900 border border-gray-700 rounded text-center">
 
-Shopify insight: *"nix + bundix put up an immutable wall -- avoid bundix initially, migrate incrementally."*
+**Pragmatic approach:** Nix solves the hard part (C-libraries & runtimes) without altering standard gem workflows.
 
 </div>
-
----
-
-# Community flakes supply specialized package overlays
-
-```nix {all|4-10|16-21|all}
-{
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-ruby = {
-      url = "github:bobvanderlinden/nixpkgs-ruby";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
-
-  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [ inputs.nixpkgs-ruby.overlays.default ];
-        };
-      in { ... });
-}
-```
-
-- `follows` pins community flake dependencies to your main `nixpkgs` revision
-- Overlays extend `pkgs` directly without modifying upstream nixpkgs
-- Specialized runtimes (`nixpkgs-ruby`) remain fully auditable and locked
 
 ---
 
 # Nix files compute configuration from local files
 
-```nix {all|1-2|4-7|all}
+```nix {all|1-2|4-8|all}
 # Read local team file dynamically
 rubyVersion = pkgs.lib.fileContents ./.ruby-version;
 
-# Customize runtime compilation parameters
-ruby = (pkgs."ruby-${rubyVersion}").override {
-  yjitSupport = false;
-};
+# Select Ruby version dynamically from nixpkgs-ruby overlay
+ruby = pkgs."ruby-${rubyVersion}";
 ```
 
-- Meets developers where they are at by reading `.ruby-version` programmatically
-- Packages are functions — `.override` customizes build flags deterministically
+- Meets developers where they are by reading `.ruby-version` programmatically
+- No hardcoding: changing `.ruby-version` updates the Nix environment automatically
 - Computed at evaluation time without global version manager shims
 
 ---
 
-# wrappedRuby and shell hooks build polyglot environments
-
-```nix {all|1-6|10-12|15-17|all}
-gems = pkgs.bundlerEnv {
-  ruby = ruby;
-  gemfile = ./Gemfile;
-  lockfile = ./Gemfile.lock;
-  gemset = ./gemset.nix;
-};
-
-devShells.default = pkgs.mkShell {
-  buildInputs = with pkgs; [
-    gems
-    gems.wrappedRuby
-    nodejs_26
-  ];
-  shellHook = ''
-    echo "Ruby: $(ruby -v)" >&2
-  '';
-};
-```
-
-- `wrappedRuby` bakes `GEM_HOME`/`GEM_PATH` into wrappers, eliminating `bundle exec`
-
----
-
-# The complete production flake brings every piece together
+# The complete, working Ruby flake
 
 <div class="h-[360px] overflow-y-auto text-xs font-mono rounded border border-gray-700 my-2">
 
 ```nix
 {
-  description = "Some Ruby Project";
+  description = "Production Ruby Application Environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -393,39 +303,25 @@ devShells.default = pkgs.mkShell {
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [
-            inputs.nixpkgs-ruby.overlays.default
-          ];
+          overlays = [ inputs.nixpkgs-ruby.overlays.default ];
         };
 
         rubyVersion = pkgs.lib.fileContents ./.ruby-version;
-        ruby = (pkgs."ruby-${rubyVersion}").override {
-          yjitSupport = false;
-        };
-
-        gems = pkgs.bundlerEnv {
-          ruby = ruby;
-          gemfile = ./Gemfile;
-          lockfile = ./Gemfile.lock;
-          gemset = ./gemset.nix;
-        };
-
+        ruby = pkgs."ruby-${rubyVersion}";
       in
       {
-        devShells = {
-          default = pkgs.mkShell {
-            buildInputs = with pkgs; [
-              gems
-              gems.wrappedRuby
+        devShells.default = pkgs.mkShell {
+          packages = [
+            ruby
+            pkgs.libpq
+            pkgs.libvips
+            pkgs.nodejs_22
+            pkgs.pnpm
+          ];
 
-              nodejs_26
-              typescript
-            ];
-
-            shellHook = ''
-              echo "Ruby: $(ruby -v)" >&2
-            '';
-          };
+          shellHook = ''
+            echo "Environment ready: Ruby $(ruby -v)"
+          '';
         };
       }
     );
@@ -434,6 +330,8 @@ devShells.default = pkgs.mkShell {
 
 </div>
 
+- Simple, transparent, and 100% focused on Boundary 1
+
 ---
 
 # Example 2: An opensource AI tooling ecosystem
@@ -441,12 +339,10 @@ devShells.default = pkgs.mkShell {
 ```
 +------------------+  +------------------+  +------------------+
 | cast             |  | cue              |  | cue-plugins      |
-|                  |  |                  |  |                  |
 | Rust, Nix        |  | Rust, TS         |  | TS, Bun          |
 +------------------+  +------------------+  +------------------+
 +------------------+  +------------------+  +------------------+
 | cue.nvim         |  | agent harnesses  |  | OSS tooling      |
-|                  |  |                  |  |                  |
 | Lua              |  | TS, Rust, Go     |  | ???              |
 +------------------+  +------------------+  +------------------+
 ```
@@ -455,7 +351,7 @@ devShells.default = pkgs.mkShell {
 
 Real workspace composition across Rust, TypeScript, Lua, and Nix
 <br/>
-Nix manages builds, cross-repo tool availability and distribution
+Nix manages builds, cross-repo tool availability, and distribution
 
 </div>
 
@@ -479,7 +375,7 @@ $ nix develop ~/.config/cast/nix
 |  (opencode, pi, cue, ast-grep, gh)                    |
 |  +-------------------------------------------------+  |
 |  |  Project Development Shell (flake.nix)          |  |
-|  |  (Ruby 4.0.6, libpq, libvips, nodejs)           |  |
+|  |  (Ruby 3.3.6, libpq, libvips, nodejs)           |  |
 |  +-------------------------------------------------+  |
 +-------------------------------------------------------+
 ```
@@ -492,9 +388,7 @@ $ nix develop ~/.config/cast/nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    # Optionally pin to explicit Git brranch
     cast.url = "github:palekiwi-labs/cast/master";
-    # Optionally pin to explicit Git commit
     cue.url = "github:palekiwi-labs/cue/2b25028b6cdcb4ff1a8d8dbb1624276fb2656a8d";
   };
 
@@ -504,7 +398,7 @@ $ nix develop ~/.config/cast/nix
 }
 ```
 
-- Direct cross-repository dependency consumption
+- Direct cross-repository dependency consumption without central registries
 - Pinning via Git revisions or local filesystem sources
 
 ---
@@ -526,34 +420,36 @@ $ nix develop ~/.config/cast/nix
 ```
 
 - Sandboxes are lightweight Debian containers mounting `/nix` read-only
-- Package reuse across all sandboxes at package granularity
-- No need to rebuild or fetch dependencies again
+- Package reuse across all sandboxes at package granularity (no duplication)
 
 ---
 
-# The learning curve is still there but...
+# Delegate the learning curve & Start today
 
+<div class="grid grid-cols-2 gap-4">
+<div class="p-4 bg-gray-800 rounded-lg">
+
+### Why you don't need to fear Nix:
 - LLMs are remarkably effective at writing and repairing Nix flakes
-- Scattered, online Nix documentation is well-suited for model synthesis
-- Agents handle syntax and inputs while human developers audit the contract
-
-<div class="mt-8 p-4 bg-gray-800 rounded-lg text-center">
-
-*"Don't climb the learning curve. Delegate it."*
+- Scattered documentation is ideal for model synthesis
+- Agents handle syntax; developers audit the contract
 
 </div>
+<div class="p-4 bg-gray-800 rounded-lg">
 
----
-
-# Start at the first boundary
-
-1. **Install Nix:** Use the Determinate Systems installer or devcontainer feature
-2. **Add a `flake.nix`:** Target Boundary 1 for system libraries + Ruby runtime
-3. **Let your agent prove it:** Agent builds and verifies the environment inside the sandbox
+### Your action plan:
+1. **Install Nix:** Determinate installer or devcontainer
+2. **Add `flake.nix`:** Target Boundary 1 (System packages + Ruby)
+3. **Let agent prove it:** Agent verifies inside sandbox
 4. **Opt-in:** Human developers switch when ready
 
-<div class="mt-8 p-4 bg-gray-800 rounded-lg text-center">
+</div>
+</div>
 
+<div class="mt-6 p-4 bg-gray-900 border border-gray-700 rounded text-center font-bold">
+
+*"Don't climb the learning curve. Delegate it."*
+<br/>
 *"Start at the first boundary. One file, one repo, nobody's permission."*
 
 </div>

@@ -1,0 +1,13 @@
+/* Slidev Custom Styles */
+strong, b, .slidev-layout strong {
+  color: #fb923c; /* Bright orange for high visibility on dark theme */
+  font-weight: 700;
+}
+
+/* Inline code blocks in red */
+:not(pre) > code {
+  color: #f87171; /* High-contrast red for dark theme */
+  background-color: rgba(248, 113, 113, 0.12); /* Subtle red background tint */
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
+}
