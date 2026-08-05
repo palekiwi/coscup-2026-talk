@@ -115,7 +115,7 @@ Your README promises an environment. Nix keeps the promise.
 - Agents run tests, linters, LSPs, QA suites, and native builds
 - High execution speed means higher rate of environment interaction
 - Agents must operate inside isolated sandboxes to execute code safely
-- **The concrete harm scenario:** Is your agent lying to you?
+- **The concrete harm scenario:** *Is your agent lying to you?!*
 
 <div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
@@ -213,24 +213,25 @@ That third form is the first line of almost every flake you will ever open.
 <div class="grid grid-cols-5 gap-6 items-center mt-4">
 <div class="col-span-3 text-xs">
 
-```nix {all|1,18|2-4,6|6,17|2-4,6|all}
+```nix {all|1,19|2-5,7|7|2-5,7|all}
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { nixpkgs, ... }: {
-    devShells.x86_64-linux.default =
+  outputs = { nixpkgs, flake-utils, ... }:
+    flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-      in
-      pkgs.mkShell {
-        packages = [
-          pkgs.ruby_3_3
-          pkgs.libpq
-        ];
-      };
-  };
+        pkgs = nixpkgs.legacyPackages.${system};
+      in {
+        devShells.default = pkgs.mkShell {
+          packages = [
+            pkgs.ruby_3_3
+            pkgs.libpq
+          ];
+        };
+      });
 }
 ```
 
@@ -250,58 +251,107 @@ That third form is the first line of almost every flake you will ever open.
 
 ---
 
-# Boundary 1: Meet developers (and Ruby) where they are
+# Hermetic Environment: Why Nix manages the full stack for agents
 
-<div class="grid grid-cols-2 gap-4">
-<div class="p-4 bg-gray-800 rounded-lg">
+<div class="p-6 bg-gray-800 rounded-lg">
 
-### What Nix provides:
-- System C-libraries (`libpq`, `libvips`, `openssl`)
-- Exact Ruby runtime (`ruby_3_3`)
-- Polyglot tooling (`nodejs`, `pnpm`, `elm`)
+### The Hermetic Approach for AI Agents:
+- Nix manages C-libraries, Ruby runtime **and** gems via `bundlerEnv` / `bundix`
+- Everything stored in `/nix/store` — immutable, locked, and fully reproducible
+- Eliminates imperatively mutated `vendor/bundle` or local gem states
+- Ideal for AI agents: agents don't have human habits and thrive on strict contracts
 
-</div>
-<div class="p-4 bg-gray-800 rounded-lg">
-
-### What Bundler provides:
-- Gems managed via `Gemfile` & `Gemfile.lock`
-- Standard `bundle install` / `bundle exec`
-- Zero friction for existing Ruby developer habits
-
-</div>
 </div>
 
 <div class="mt-6 p-4 bg-gray-900 border border-gray-700 rounded text-center">
 
-**Pragmatic approach:** Nix solves the hard part (C-libraries & runtimes) without altering standard gem workflows.
+**Hermetic & Immutable:** Nix locks everything your gems assume, giving agents a 100% deterministic sandbox.
 
 </div>
+
+---
+
+# Community flakes supply specialized package overlays
+
+```nix {all|4-10|13-15|16-21|all}
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    nixpkgs-ruby = {
+      url = "github:bobvanderlinden/nixpkgs-ruby";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ inputs.nixpkgs-ruby.overlays.default ];
+        };
+      in { ... });
+}
+```
+
+- `follows` pins community flake dependencies to your main `nixpkgs` revision
+- Overlays extend `pkgs` directly without modifying upstream nixpkgs
+- Specialized runtimes (`nixpkgs-ruby`) remain fully auditable and locked
 
 ---
 
 # Nix files compute configuration from local files
 
-```nix {all|1-2|4-8|all}
+```nix {all|1-2|4-7|all}
 # Read local team file dynamically
 rubyVersion = pkgs.lib.fileContents ./.ruby-version;
 
-# Select Ruby version dynamically from nixpkgs-ruby overlay
-ruby = pkgs."ruby-${rubyVersion}";
+# Customize runtime compilation parameters
+ruby = (pkgs."ruby-${rubyVersion}").override {
+  yjitSupport = false;
+};
 ```
 
-- Meets developers where they are by reading `.ruby-version` programmatically
-- No hardcoding: changing `.ruby-version` updates the Nix environment automatically
+- Meets developers where they are at by reading `.ruby-version` programmatically
+- Packages are functions — `.override` customizes build flags deterministically
 - Computed at evaluation time without global version manager shims
 
 ---
 
-# The complete, working Ruby flake
+# wrappedRuby and shell hooks build polyglot environments
+
+```nix {all|1-6|10-12|15-17|all}
+gems = pkgs.bundlerEnv {
+  ruby = ruby;
+  gemfile = ./Gemfile;
+  lockfile = ./Gemfile.lock;
+  gemset = ./gemset.nix;
+};
+
+devShells.default = pkgs.mkShell {
+  buildInputs = with pkgs; [
+    gems
+    gems.wrappedRuby
+    nodejs_26
+  ];
+  shellHook = ''
+    echo "Ruby: $(ruby -v)" >&2
+  '';
+};
+```
+
+- `wrappedRuby` bakes `GEM_HOME`/`GEM_PATH` into wrappers, eliminating `bundle exec`
+- `bundlerEnv` pins all gems into `/nix/store` for total immutability
+
+---
+
+# The complete production flake brings every piece together
 
 <div class="h-[360px] overflow-y-auto text-xs font-mono rounded border border-gray-700 my-2">
 
 ```nix
 {
-  description = "Production Ruby Application Environment";
+  description = "Production Hermetic Ruby Environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -317,25 +367,39 @@ ruby = pkgs."ruby-${rubyVersion}";
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ inputs.nixpkgs-ruby.overlays.default ];
+          overlays = [
+            inputs.nixpkgs-ruby.overlays.default
+          ];
         };
 
         rubyVersion = pkgs.lib.fileContents ./.ruby-version;
-        ruby = pkgs."ruby-${rubyVersion}";
+        ruby = (pkgs."ruby-${rubyVersion}").override {
+          yjitSupport = false;
+        };
+
+        gems = pkgs.bundlerEnv {
+          ruby = ruby;
+          gemfile = ./Gemfile;
+          lockfile = ./Gemfile.lock;
+          gemset = ./gemset.nix;
+        };
+
       in
       {
-        devShells.default = pkgs.mkShell {
-          packages = [
-            ruby
-            pkgs.libpq
-            pkgs.libvips
-            pkgs.nodejs_22
-            pkgs.pnpm
-          ];
+        devShells = {
+          default = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              gems
+              gems.wrappedRuby
 
-          shellHook = ''
-            echo "Environment ready: Ruby $(ruby -v)"
-          '';
+              nodejs_26
+              typescript
+            ];
+
+            shellHook = ''
+              echo "Ruby: $(ruby -v)" >&2
+            '';
+          };
         };
       }
     );
@@ -344,19 +408,21 @@ ruby = pkgs."ruby-${rubyVersion}";
 
 </div>
 
-- Simple, transparent, and 100% focused on Boundary 1
-
 ---
 
-# Example 2: An opensource AI tooling ecosystem
+# **Case Study 2:** Your OpenSource AI ecosystem
 
 ```
 +------------------+  +------------------+  +------------------+
 | cast             |  | cue              |  | cue-plugins      |
+| (sandbox)        |  | (memory/context) |  | (agent UX)       |
+|                  |  |                  |  |                  |
 | Rust, Nix        |  | Rust, TS         |  | TS, Bun          |
 +------------------+  +------------------+  +------------------+
 +------------------+  +------------------+  +------------------+
 | cue.nvim         |  | agent harnesses  |  | OSS tooling      |
+| (human UX)       |  | (cc, pi, oc,...) |  | (RAG, mux,...)   |
+|                  |  |                  |  |                  |
 | Lua              |  | TS, Rust, Go     |  | ???              |
 +------------------+  +------------------+  +------------------+
 ```
@@ -406,7 +472,7 @@ $ nix develop ~/.config/cast/nix
     cue.url = "github:palekiwi-labs/cue/2b25028b6cdcb4ff1a8d8dbb1624276fb2656a8d";
   };
 
-  outputs = { self, nixpkgs, cast, cue }: {
+  outputs = { self, nixpkgs, cast }: {
     # Consume binaries directly in project environments
   };
 }
@@ -453,7 +519,7 @@ $ nix develop ~/.config/cast/nix
 
 ### Your action plan:
 1. **Install Nix:** Determinate installer or devcontainer
-2. **Add `flake.nix`:** Target Boundary 1 (System packages + Ruby)
+2. **Add `flake.nix`:** Target Hermetic environment for AI agents
 3. **Let agent prove it:** Agent verifies inside sandbox
 4. **Opt-in:** Human developers switch when ready
 
