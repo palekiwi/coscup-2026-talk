@@ -316,6 +316,12 @@ ruby = (pkgs."ruby-${rubyVersion}").override {
 - Packages are functions — `.override` customizes build flags deterministically
 - Computed at evaluation time without global version manager shims
 
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
+
+Configuration is a computed value, not a static file — and it remains 100% declarative.
+
+</div>
+
 ---
 
 # wrappedRuby and shell hooks build polyglot environments
