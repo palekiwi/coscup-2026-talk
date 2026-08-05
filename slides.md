@@ -165,11 +165,13 @@ Composition, not competition: Nix composes with containers; it does not replace 
 ```
 +------------------+  +------------------+  +------------------+
 | storefront       |  | checkout-api     |  | identity         |
+|                  |  |                  |  |                  |
 | Ruby 3.3.6       |  | Ruby 3.3.4       |  | Ruby 4.0.2       |
 | TS / Elm         |  | Sinatra          |  | Rails 8.0        |
 +------------------+  +------------------+  +------------------+
 +------------------+  +------------------+  +------------------+
 | notifications    |  | admin-ui         |  | legacy-crm       |
+|                  |  |                  |  |                  |
 | Go 1.23 / Redis  |  | Node 22 / Vue 3  |  | Ruby 1.8.7       |
 |                  |  | React            |  | Java, Go         |
 +------------------+  +------------------+  +------------------+
