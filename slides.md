@@ -460,6 +460,12 @@ $ nix develop ~/.config/cast/nix
 +-------------------------------------------------------+
 ```
 
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
+
+Your project shell defines the app. Your global shell defines the agent.
+
+</div>
+
 ---
 
 # Seamless package distribution across repositories
@@ -481,6 +487,12 @@ $ nix develop ~/.config/cast/nix
 - Direct cross-repository dependency consumption without central registries
 - Pinning via Git revisions or local filesystem sources
 
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
+
+No package registry. No release pipeline. Just a Git URL and a lockfile.
+
+</div>
+
 ---
 
 # Isolation and efficiency share the same mechanism
@@ -501,6 +513,12 @@ $ nix develop ~/.config/cast/nix
 
 - Sandboxes are lightweight Debian containers mounting `/nix` read-only
 - Package reuse across all sandboxes at package granularity (no duplication)
+
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
+
+Don't rebuild. It is already there.
+
+</div>
 
 ---
 
