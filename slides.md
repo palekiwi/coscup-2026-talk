@@ -26,11 +26,11 @@ COSCUP 2026 - Ruby Track
 <div class="grid grid-cols-2 gap-4">
 <div>
 
-- Professional Rubyist
-- Polyglot programmer (Nix, Rust, Haskell, TS, Lua, Nushell, ...)
-- Red Hat Certified Engineer (configuration as code, Ansible)
-- Creator of AI tooling (sandboxes, memory/context management, observability)
-- Obsessive tinkerer and explorer
+- Professional **Rubyist**
+- **Polyglot** programmer (Nix, Rust, Haskell, TS, Lua, Nushell, ...)
+- Red Hat Certified **Engineer** (configuration as code, Ansible)
+- **Creator** of AI tooling (sandboxes, memory/context management, observability)
+- Obsessive tinkerer and **explorer**
 
 </div>
 <div>
