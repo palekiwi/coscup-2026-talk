@@ -202,37 +202,47 @@ That third form is the first line of almost every flake you will ever open.
 
 # Interactive Quiz: Can you read a flake?
 
-```nix {all|1,22|2-5,7|7|2,7|all}
+<div class="grid grid-cols-5 gap-6 items-center mt-4">
+<div class="col-span-3 text-xs">
+
+```nix {all|1,18|2-4,6|6|2,6|all}
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = { nixpkgs, ... }: {
+    devShells.x86_64-linux.default =
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-      in {
-        devShells.default = pkgs.mkShell {
-          packages = [
-            pkgs.ruby_3_3
-            pkgs.libpq
-            pkgs.libvips
-          ];
-        };
-      });
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      in
+      pkgs.mkShell {
+        packages = [
+          pkgs.ruby_3_3
+          pkgs.libpq
+        ];
+      };
+  };
 }
 ```
 
+</div>
+<div class="col-span-2 text-base">
+
 <v-clicks>
 
-- **Q1:** What are the outermost `{ ... }`? *(An attribute set!)*
-- **Q2:** What are `inputs` and `outputs`? *(Attributes / keys in the set!)*
-- **Q3:** What is the type of `outputs`? *(A function taking an attribute set!)*
-- **Q4:** What connects `inputs` and `outputs`? *(Pattern matching / destructuring inputs!)*
+1. What are the outermost `{ ... }`?
+
+2. What are `inputs` and `outputs`?
+
+3. What is the type of `outputs`?
+
+4. How do `inputs` and `outputs` relate?
 
 </v-clicks>
+
+</div>
+</div>
 
 ---
 
