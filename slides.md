@@ -46,16 +46,12 @@ COSCUP 2026 - Ruby Track
 
 # Agenda
 
-<v-clicks>
-
 1. **Why this? Why now?** — AI pair programmers and runtime requirements
 2. **The problem you don't realize you have** — Unenforced READMEs and empty sandboxes
 3. **The promise Nix keeps** — Deterministic development environments
 4. **Case Study 1: Nix Deep Dive for Rubyists** — Flakes, syntax, and Ruby setups
 5. **Case Study 2: Open Source with Nix** — Ecosystem composition and distribution
 6. **Next steps** — Delegate the learning curve and start today
-
-</v-clicks>
 
 ---
 
@@ -108,7 +104,7 @@ COSCUP 2026 - Ruby Track
 
 <div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
-**Your README promises an environment. Nix keeps the promise.**
+Your README promises an environment. Nix keeps the promise.
 
 </div>
 
@@ -119,14 +115,16 @@ COSCUP 2026 - Ruby Track
 - Agents run tests, linters, LSPs, QA suites, and native builds
 - High execution speed means higher rate of environment interaction
 - Agents must operate inside isolated sandboxes to execute code safely
-- **The concrete harm scenario:**
+- **The concrete harm scenario:** Is your agent lying to you?
 
 <div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
-*"The agent wrote the code, could not run the test suite because the box
-lacked the system library.
+"Agent couldn't inspect **vendor code**, so it guessed the **API**.
 <br>
-Declared success anyway, and you merged it."*
+It couldn't run the **tests**, so it guessed the **outcome**.
+<br>
+<br>
+Confidently declared green — and you merged it."
 
 </div>
 
@@ -151,13 +149,18 @@ Declared success anyway, and you merged it."*
 +-------------------------------------------------------------+
 ```
 
-- **Containers isolate processes, but fill boxes poorly:** package availability tied to distro, slow rebuilds, layer-granularity caching
+- **Containers isolate processes, but fill boxes poorly:** package availability, rebuilds, caching granularity
 - Nix fills the sandbox deterministically and runs identically on human laptops
-- *Composition, not competition: Nix composes with containers; it does not replace them.*
+
+<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
+
+Composition, not competition: Nix composes with containers; it does not replace them.
+
+</div>
 
 ---
 
-# Example 1: A Ruby Shop
+# **Case Study 1:** A Ruby Shop
 
 ```
 +------------------+  +------------------+  +------------------+
@@ -172,7 +175,12 @@ Declared success anyway, and you merged it."*
 +------------------+  +------------------+  +------------------+
 ```
 
-- 4 Ruby versions, 5 languages, 1 developer laptop
+<div class="mt-6 mb-6 p-4 bg-gray-800 rounded-lg text-center">
+
+4 Ruby versions, 5 languages, 1 container
+
+</div>
+
 - When a repo contains `flake.nix`, anyone (or any agent) enters via `nix develop`
 - No manual environment installation, no global version manager shims
 
@@ -205,7 +213,7 @@ That third form is the first line of almost every flake you will ever open.
 <div class="grid grid-cols-5 gap-6 items-center mt-4">
 <div class="col-span-3 text-xs">
 
-```nix {all|1,18|2-4,6|6|2,6|all}
+```nix {all|1,18|2-4,6|6,17|2-4,6|all}
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -229,8 +237,6 @@ That third form is the first line of almost every flake you will ever open.
 </div>
 <div class="col-span-2 text-base">
 
-<v-clicks>
-
 1. What are the outermost `{ ... }`?
 
 2. What are `inputs` and `outputs`?
@@ -238,8 +244,6 @@ That third form is the first line of almost every flake you will ever open.
 3. What is the type of `outputs`?
 
 4. How do `inputs` and `outputs` relate?
-
-</v-clicks>
 
 </div>
 </div>
