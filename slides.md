@@ -234,8 +234,12 @@ That third form is the first line of almost every flake you will ever open.
 ```nix {all|1,19|2-5,7|7|2-5,7|all}
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs = {
+      url = "github:NixOS/nixpkgs/nixos-unstable";
+    };
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+    };
   };
 
   outputs = { nixpkgs, flake-utils, ... }:
@@ -244,10 +248,7 @@ That third form is the first line of almost every flake you will ever open.
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         devShells.default = pkgs.mkShell {
-          packages = [
-            pkgs.ruby_3_3
-            pkgs.libpq
-          ];
+          packages = [ pkgs.ruby_3_3 pkgs.libpq ];
         };
       });
 }
