@@ -1,7 +1,8 @@
 Output public/demo.mp4
 
 Set FontFamily "JetBrains Mono"
-Set FontSize 18
+Set FontSize 22
+Set LineHeight 1.3
 Set Width 960
 Set Height 720
 Set Theme "Catppuccin Mocha"
