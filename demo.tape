@@ -34,4 +34,4 @@ Sleep 800ms
 
 Type "rspec"
 Enter
-Sleep 3s
+Sleep 8s
