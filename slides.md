@@ -270,7 +270,7 @@ That third form is the first line of almost every flake you will ever open.
 
 ---
 
-# Hermetic Environment: Why Nix manages the full stack for agents
+# Why Nix manages the full stack for agents
 
 <div class="p-6 bg-gray-800 rounded-lg">
 
@@ -290,7 +290,7 @@ That third form is the first line of almost every flake you will ever open.
 
 ---
 
-# Community flakes supply specialized package overlays
+# Community flakes supply specialized overlays
 
 ```nix {all|5,8|11-14|all}
 {
@@ -340,7 +340,7 @@ Configuration is a computed value, not a static file — and it remains 100% dec
 
 ---
 
-# `bundlerEnv` pins all gems into `/nix/store` for total immutability
+# `bundlerEnv` pins all gems into `/nix/store`
 
 ```nix {all|1-6|10-12|14-17|all}
 gems = pkgs.bundlerEnv {
@@ -366,7 +366,7 @@ devShells.default = pkgs.mkShell {
 
 ---
 
-# The complete production flake brings every piece together
+# The complete flake brings every piece together
 
 <div class="h-[360px] overflow-y-auto text-xs font-mono rounded border border-gray-700 my-2">
 
