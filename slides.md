@@ -580,16 +580,16 @@ Start at the first boundary. One file, one repo, nobody's permission.
 
 # Worked on my machine, works on every machine.
 
-<div class="grid grid-cols-2 gap-4 mt-12">
-<div>
+<div class="grid grid-cols-5 gap-4 mt-12">
+<div class="col-span-3">
 
-- **Presentation & Deck:** `github.com/palekiwi/coscup-2026-talk`
+- **Slides & Flakes:** `github.com/palekiwi/coscup-2026-talk`
 - **Workspace:** `github.com/palekiwi/palekiwi`
 - **Open Source:** `github.com/palekiwi-labs`
 - **Contact:** `contact@palekiwi.com`
 
 </div>
-<div>
+<div class="col-span-2">
 
 <img src="/palekiwi-avatar.jpg" class="rounded-2 w-40 h-40 mx-auto shadow-lg mb-4" alt="palekiwi" />
 
