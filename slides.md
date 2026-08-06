@@ -430,32 +430,76 @@ devShells.default = pkgs.mkShell {
 
 # **Case Study 2:** Your OpenSource AI ecosystem
 
+<div class="grid grid-cols-2 gap-4">
+<div>
+
 ```
-+------------------+  +------------------+  +------------------+
-| cast             |  | cue              |  | cue-plugins      |
-| (sandbox)        |  | (memory/context) |  | (agent UX)       |
-|                  |  |                  |  |                  |
-| Rust, Nix        |  | Rust, TS         |  | TS, Bun          |
-+------------------+  +------------------+  +------------------+
-+------------------+  +------------------+  +------------------+
-| cue.nvim         |  | agent harnesses  |  | OSS tooling      |
-| (human UX)       |  | (cc, pi, oc,...) |  | (RAG, mux,...)   |
-|                  |  |                  |  |                  |
-| Lua              |  | TS, Rust, Go     |  | ???              |
-+------------------+  +------------------+  +------------------+
+// github.com/palekiwi-labs
++------------------+  +------------------+  
+| cast             |  | cue              |  
+| (sandbox)        |  | (memory/context) |  
+|                  |  |                  |  
+| Rust, Nix        |  | Rust, TS         |  
++------------------+  +------------------+  
++------------------+ +------------------+  
+| cue-plugins      | | cue.nvim         |  
+| (agent UX)       | | (human UX)       |  
+|                  | |                  |  
+| TS, Bun          | | Lua              |  
++------------------+ +------------------+  
++------------------+  +------------------+
+| agent harnesses  |  | OSS tooling      |
+| (cc, pi, oc,...) |  | (RAG, mux,...)   |
+|                  |  |                  |
+| TS, Rust, Go     |  | ???              |
++------------------+  +------------------+
+```
+
+</div>
+
+<div>
+
+```nix
+inputs = {
+  llm-agents = {
+    url = "github:numtide/llm-agents.nix";
+  };
+  cast = {
+    url = "github:palekiwi-labs/cast/master"
+  };
+  cue = {
+    url = "github:palekiwi-labs/cue/2b25028b6cdcb4ff1a8d8dbb1624276fb2656a8d";
+  };
+};
 ```
 
 <div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
-Real workspace composition across Rust, TypeScript, Lua, and Nix
+No package registry. No release pipeline.
 <br/>
-Nix manages builds, cross-repo tool availability, and distribution
+Just a Git URL and a lockfile.
 
 </div>
+</div>
+
+</div>
+
 
 ---
 
 # Vertical composition: Nesting development shells
+
+```
++-------------------------------------------------------+
+|  Global Agent Harness Shell                           |
+|  (opencode, pi, cue, ast-grep, gh)                    |
+|                                                       |
+|  +-------------------------------------------------+  |
+|  |  Project Development Shell (flake.nix)          |  |
+|  |  (Ruby 3.3.6, libpq, libvips, nodejs)           |  |
+|  +-------------------------------------------------+  |
++-------------------------------------------------------+
+```
 
 ```bash
 # Outer shell: Global AI agent tools provided by host
@@ -467,47 +511,9 @@ $ nix develop ~/.config/cast/nix
 (project-env) $ bundle exec rubocop
 ```
 
-```
-+-------------------------------------------------------+
-|  Global Agent Harness Shell (llm-agents flake)        |
-|  (opencode, pi, cue, ast-grep, gh)                    |
-|  +-------------------------------------------------+  |
-|  |  Project Development Shell (flake.nix)          |  |
-|  |  (Ruby 3.3.6, libpq, libvips, nodejs)           |  |
-|  +-------------------------------------------------+  |
-+-------------------------------------------------------+
-```
-
 <div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
 
 Your project shell defines the app. Your global shell defines the agent.
-
-</div>
-
----
-
-# Seamless package distribution across repositories
-
-```nix
-{
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    cast.url = "github:palekiwi-labs/cast/master";
-    cue.url = "github:palekiwi-labs/cue/2b25028b6cdcb4ff1a8d8dbb1624276fb2656a8d";
-  };
-
-  outputs = { self, nixpkgs, cast }: {
-    # Consume binaries directly in project environments
-  };
-}
-```
-
-- Direct cross-repository dependency consumption without central registries
-- Pinning via Git revisions or local filesystem sources
-
-<div class="mt-6 p-4 bg-gray-800 rounded-lg text-center">
-
-No package registry. No release pipeline. Just a Git URL and a lockfile.
 
 </div>
 
@@ -518,7 +524,7 @@ No package registry. No release pipeline. Just a Git URL and a lockfile.
 ```
 +-------------------------------------------------------------+
 |                     Host System / Daemon                    |
-|             nix-daemon (owns /nix/store Read-Write)          |
+|             nix-daemon (owns /nix/store Read-Write)         |
 +------------------------------+------------------------------+
                                | Read-Only Mount (/nix)
               +----------------+----------------+
@@ -564,9 +570,9 @@ Don't rebuild. It is already there.
 
 <div class="mt-6 p-4 bg-gray-900 border border-gray-700 rounded text-center font-bold">
 
-*"Don't climb the learning curve. Delegate it."*
+Don't climb the learning curve. Delegate it.
 <br/>
-*"Start at the first boundary. One file, one repo, nobody's permission."*
+Start at the first boundary. One file, one repo, nobody's permission.
 
 </div>
 
@@ -574,7 +580,7 @@ Don't rebuild. It is already there.
 
 # Worked on my machine, works on every machine.
 
-<div class="grid grid-cols-2 gap-4">
+<div class="grid grid-cols-2 gap-4 mt-12">
 <div>
 
 - **Presentation & Deck:** `github.com/palekiwi/coscup-2026-talk`
