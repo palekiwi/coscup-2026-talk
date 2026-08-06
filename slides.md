@@ -231,7 +231,7 @@ That third form is the first line of almost every flake you will ever open.
 <div class="grid grid-cols-5 gap-6 items-center mt-4">
 <div class="col-span-3 text-xs">
 
-```nix {all|1,19|2-5,7|7|2-5,7|all}
+```nix {all|1,20|2-9|11|2-3,6,9,11|all}
 {
   inputs = {
     nixpkgs = {
@@ -292,22 +292,20 @@ That third form is the first line of almost every flake you will ever open.
 
 # Community flakes supply specialized package overlays
 
-```nix {all|4-10|13-15|16-21|all}
+```nix {all|5,8|11-14|all}
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nixpkgs-ruby = {
-      url = "github:bobvanderlinden/nixpkgs-ruby";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    flake-utils.url = "github:numtide/flake-utils";
+    nixpkgs-ruby.url = "github:bobvanderlinden/nixpkgs-ruby";
   };
 
-  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
+  outputs = { nixpkgs, flake-utils, nixpkgs-ruby, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
           inherit system;
-          overlays = [ inputs.nixpkgs-ruby.overlays.default ];
+          overlays = [ nixpkgs-ruby.overlays.default ];
         };
       in { ... });
 }
@@ -315,7 +313,6 @@ That third form is the first line of almost every flake you will ever open.
 
 - `follows` pins community flake dependencies to your main `nixpkgs` revision
 - Overlays extend `pkgs` directly without modifying upstream nixpkgs
-- Specialized runtimes (`nixpkgs-ruby`) remain fully auditable and locked
 
 ---
 
@@ -345,7 +342,7 @@ Configuration is a computed value, not a static file — and it remains 100% dec
 
 # wrappedRuby and shell hooks build polyglot environments
 
-```nix {all|1-6|10-12|15-17|all}
+```nix {all|1-6|10-12|14-17|all}
 gems = pkgs.bundlerEnv {
   ruby = ruby;
   gemfile = ./Gemfile;
