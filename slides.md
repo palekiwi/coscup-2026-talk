@@ -340,7 +340,7 @@ Configuration is a computed value, not a static file — and it remains 100% dec
 
 ---
 
-# wrappedRuby and shell hooks build polyglot environments
+# `bundlerEnv` pins all gems into `/nix/store` for total immutability
 
 ```nix {all|1-6|10-12|14-17|all}
 gems = pkgs.bundlerEnv {
@@ -351,7 +351,7 @@ gems = pkgs.bundlerEnv {
 };
 
 devShells.default = pkgs.mkShell {
-  buildInputs = with pkgs; [
+  packages = with pkgs; [
     gems
     gems.wrappedRuby
     nodejs_26
@@ -362,8 +362,7 @@ devShells.default = pkgs.mkShell {
 };
 ```
 
-- `wrappedRuby` bakes `GEM_HOME`/`GEM_PATH` into wrappers, eliminating `bundle exec`
-- `bundlerEnv` pins all gems into `/nix/store` for total immutability
+`wrappedRuby` bakes `GEM_HOME`/`GEM_PATH` into wrappers, eliminating `bundle exec`
 
 ---
 
@@ -378,10 +377,7 @@ devShells.default = pkgs.mkShell {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    nixpkgs-ruby = {
-      url = "github:bobvanderlinden/nixpkgs-ruby";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nixpkgs-ruby.url = "github:bobvanderlinden/nixpkgs-ruby";
   };
 
   outputs = { self, nixpkgs, flake-utils, ... }@inputs:
@@ -410,7 +406,7 @@ devShells.default = pkgs.mkShell {
       {
         devShells = {
           default = pkgs.mkShell {
-            buildInputs = with pkgs; [
+            packages = with pkgs; [
               gems
               gems.wrappedRuby
 
