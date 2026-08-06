@@ -162,29 +162,45 @@ Composition, not competition: Nix composes with containers; it does not replace 
 
 # **Case Study 1:** A Ruby Shop
 
+<div class="grid grid-cols-2 gap-4 items-center">
+<div>
+
 ```
-+------------------+  +------------------+  +------------------+
-| storefront       |  | checkout-api     |  | identity         |
-|                  |  |                  |  |                  |
-| Ruby 3.3.6       |  | Ruby 3.3.4       |  | Ruby 4.0.2       |
-| TS / Elm         |  | Sinatra          |  | Rails 8.0        |
-+------------------+  +------------------+  +------------------+
-+------------------+  +------------------+  +------------------+
-| notifications    |  | admin-ui         |  | legacy-crm       |
-|                  |  |                  |  |                  |
-| Go 1.23 / Redis  |  | Node 22 / Vue 3  |  | Ruby 1.8.7       |
-|                  |  | React            |  | Java, Go         |
-+------------------+  +------------------+  +------------------+
++------------------+  +------------------+
+| storefront       |  | checkout-api     |
+| Ruby 3.3.6 / Elm |  | Ruby 3.3.4       |
++------------------+  +------------------+
+| identity         |  | notifications    |
+| Ruby 4.0.2 / R8  |  | Go 1.23 / Redis  |
++------------------+  +------------------+
+| admin-ui         |  | legacy-crm       |
+| Node 22 / Vue 3  |  | Ruby 1.8.7 / GWT |
++------------------+  +------------------+
 ```
 
-<div class="mt-6 mb-6 p-4 bg-gray-800 rounded-lg text-center">
+<p class="text-center text-gray-400 mt-2 mb-2">4 Ruby versions, 5 languages, 1 container</p>
 
-4 Ruby versions, 5 languages, 1 container
+
+<div class="mt-6">
+
+When a repo contains `flake.nix`, anyone (or any agent) enters via `nix develop`
 
 </div>
 
-- When a repo contains `flake.nix`, anyone (or any agent) enters via `nix develop`
-- No manual environment installation, no global version manager shims
+</div>
+<div>
+
+<video 
+  src="/demo.mp4" 
+  autoplay 
+  loop 
+  muted 
+  playsinline 
+  class="rounded-lg shadow-xl max-h-[380px] w-full object-contain"
+/>
+
+</div>
+</div>
 
 ---
 
