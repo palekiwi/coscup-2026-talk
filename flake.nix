@@ -35,6 +35,30 @@
             exec ${pkgs.bun}/bin/bun run slidev export --executable-path "${pkgs.chromium}/bin/chromium" "$@"
           '';
         };
+
+        fontsConf = pkgs.makeFontsConf {
+          fontDirectories = [
+            pkgs.jetbrains-mono
+            pkgs.fira-code
+            pkgs.nerd-fonts.fira-code
+            pkgs.dejavu_fonts
+          ];
+        };
+
+        record-demo = pkgs.writeShellApplication {
+          name = "record-demo";
+          runtimeInputs = [ pkgs.vhs pkgs.chromium pkgs.ffmpeg pkgs.bash pkgs.ttyd pkgs.xvfb-run pkgs.fontconfig ];
+          text = ''
+            export VHS_NO_SANDBOX=1
+            export SHELL="${pkgs.bash}/bin/bash"
+            export FONTCONFIG_FILE="${fontsConf}"
+            if [ $# -eq 0 ]; then
+              exec ${pkgs.xvfb-run}/bin/xvfb-run -a ${pkgs.vhs}/bin/vhs demo.tape
+            else
+              exec ${pkgs.xvfb-run}/bin/xvfb-run -a ${pkgs.vhs}/bin/vhs "$@"
+            fi
+          '';
+        };
       in
       {
         devShells.default = pkgs.mkShell {
@@ -42,7 +66,16 @@
             pkgs.bun
             pkgs.nodejs
             pkgs.chromium
+            pkgs.vhs
+            pkgs.ffmpeg
+            pkgs.xvfb-run
+            pkgs.jetbrains-mono
+            pkgs.fira-code
+            pkgs.nerd-fonts.fira-code
           ];
+          shellHook = ''
+            export FONTCONFIG_FILE="${fontsConf}"
+          '';
         };
 
         packages = {
@@ -50,6 +83,7 @@
           present = present;
           pdf = export-pdf;
           export-pdf = export-pdf;
+          record-demo = record-demo;
         };
       });
 }
