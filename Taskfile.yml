@@ -1,0 +1,42 @@
+version: '3'
+
+# Thin wrappers around the Nix flake commands so that `task -a`
+# doubles as a documented menu of everything the flake exposes.
+# Each description names the underlying nix command so the Taskfile
+# teaches the real invocation, not just an alias.
+
+tasks:
+  default:
+    desc: Show this list of available tasks
+    cmds:
+      - task --list
+
+  present:
+    desc: Start the live Slidev presentation server (nix run .#present)
+    cmds:
+      - nix run .#present -- {{.CLI_ARGS}}
+
+  build:
+    desc: Build the static HTML web presentation to dist/ (nix run .#build)
+    cmds:
+      - nix run .#build -- {{.CLI_ARGS}}
+
+  pdf:
+    desc: Export the deck to slides-export.pdf via Nix Chromium (nix run .#pdf)
+    cmds:
+      - nix run .#pdf -- {{.CLI_ARGS}}
+
+  record-demo:
+    desc: Render the terminal demo from demo.tape via VHS (nix run .#record-demo)
+    cmds:
+      - nix run .#record-demo -- {{.CLI_ARGS}}
+
+  dev:
+    desc: Enter the Nix development shell with all tooling (nix develop)
+    cmds:
+      - nix develop {{.CLI_ARGS}}
+
+  update:
+    desc: Update flake.lock input revisions (nix flake update)
+    cmds:
+      - nix flake update

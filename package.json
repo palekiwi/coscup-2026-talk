@@ -5,9 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "slidev",
-    "build": "slidev build",
-    "export": "slidev export",
-    "export:pdf": "slidev export",
+    "build": "slidev build --out dist",
+    "export": "slidev export --output slides.pdf",
+    "export:pdf": "slidev export --output slides.pdf",
     "present": "slidev"
   },
   "devDependencies": {

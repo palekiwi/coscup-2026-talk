@@ -27,6 +27,15 @@
           '';
         };
 
+        build-slides = pkgs.writeShellApplication {
+          name = "build-slides";
+          runtimeInputs = [ pkgs.bun pkgs.nodejs ];
+          text = ''
+            ${ensureDependencies}
+            exec ${pkgs.bun}/bin/bun run slidev build --out dist "$@"
+          '';
+        };
+
         export-pdf = pkgs.writeShellApplication {
           name = "export-pdf";
           runtimeInputs = [ pkgs.bun pkgs.nodejs pkgs.chromium ];
@@ -81,6 +90,8 @@
         packages = {
           default = present;
           present = present;
+          build = build-slides;
+          build-slides = build-slides;
           pdf = export-pdf;
           export-pdf = export-pdf;
           record-demo = record-demo;
