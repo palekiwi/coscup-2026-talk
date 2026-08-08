@@ -4,7 +4,7 @@ Set FontFamily "JetBrains Mono"
 Set FontSize 22
 Set LineHeight 1.3
 Set Width 1100
-Set Height 676
+Set Height 712
 Set Theme "Catppuccin Mocha"
 Set Padding 20
 
@@ -34,4 +34,4 @@ Sleep 800ms
 
 Type "rspec"
 Enter
-Sleep 8s
+Sleep 10s

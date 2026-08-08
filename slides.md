@@ -196,7 +196,7 @@ When a repo contains `flake.nix`, anyone (or any agent) enters via `nix develop`
   loop 
   muted 
   playsinline 
-  class="rounded-lg shadow-xl max-h-[380px] w-full object-contain"
+  class="rounded-lg shadow-xl max-h-[400px] w-full object-contain"
 />
 
 </div>
